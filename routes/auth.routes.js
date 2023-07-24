@@ -8,26 +8,23 @@ const { isAuthenticated } = require("./../middleware/jwt.middleware.js");
 const router = express.Router();
 const saltRounds = 10;
 
-// POST /auth/signup  - Creates a new user in the database
+// SIGNUP POST
 router.post("/signup", (req, res, next) => {
-  const { email, password, firstname, lastname } = req.body;
+  const { email, password, firstName, lastName } = req.body;
 
-  // Check if email or password or firstname, lastname are provided as empty string
-  if ((email === "" || password === "" || firstname === "", lastname === "")) {
+  if ((email === "" || password === "" || firstName === "", lastName === "")) {
     res
       .status(400)
       .json({ message: "Provide email, password and firstname, lastname" });
     return;
   }
 
-  // Use regex to validate the email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   if (!emailRegex.test(email)) {
     res.status(400).json({ message: "Provide a valid email address." });
     return;
   }
 
-  // Use regex to validate the password format
   const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
   if (!passwordRegex.test(password)) {
     res.status(400).json({
@@ -37,37 +34,28 @@ router.post("/signup", (req, res, next) => {
     return;
   }
 
-  // Check the users collection if a user with the same email already exists
   User.findOne({ email })
     .then((foundUser) => {
-      // If the user with the same email already exists, send an error response
       if (foundUser) {
         res.status(400).json({ message: "User already exists." });
         return;
       }
 
-      // If email is unique, proceed to hash the password
       const salt = bcrypt.genSaltSync(saltRounds);
       const hashedPassword = bcrypt.hashSync(password, salt);
 
-      // Create the new user in the database
-      // We return a pending promise, which allows us to chain another `then`
       return User.create({
         email,
         password: hashedPassword,
-        firstname,
-        lastname,
+        firstName,
+        lastName,
       });
     })
     .then((createdUser) => {
-      // Deconstruct the newly created user object to omit the password
-      // We should never expose passwords publicly
-      const { email, firstname, lastname, _id } = createdUser;
+      const { email, firstName, lastName, _id } = createdUser;
 
-      // Create a new object that doesn't expose the password
-      const user = { email, firstname, lastname, _id };
+      const user = { email, firstName, lastName, _id };
 
-      // Send a json response containing the user object
       res.status(201).json({ user: user });
     })
     .catch((err) => {
@@ -76,42 +64,34 @@ router.post("/signup", (req, res, next) => {
     });
 });
 
-// POST  /auth/login - Verifies email and password and returns a JWT
+// LOGIN POST
 router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
 
-  // Check if email or password are provided as empty string
   if (email === "" || password === "") {
     res.status(400).json({ message: "Provide email and password." });
     return;
   }
 
-  // Check the users collection if a user with the same email exists
   User.findOne({ email })
     .then((foundUser) => {
       if (!foundUser) {
-        // If the user is not found, send an error response
         res.status(401).json({ message: "User not found." });
         return;
       }
 
-      // Compare the provided password with the one saved in the database
       const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 
       if (passwordCorrect) {
-        // Deconstruct the user object to omit the password
-        const { _id, email, firstname, lastname } = foundUser;
+        const { _id, email, firstName, lastName } = foundUser;
 
-        // Create an object that will be set as the token payload
-        const payload = { _id, email, firstname, lastname };
+        const payload = { _id, email, firstName, lastName };
 
-        // Create and sign the token
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
           algorithm: "HS256",
           expiresIn: "6h",
         });
 
-        // Send the token as the response
         res.status(200).json({ authToken: authToken });
       } else {
         res.status(401).json({ message: "Unable to authenticate the user" });
@@ -120,14 +100,10 @@ router.post("/login", (req, res, next) => {
     .catch((err) => res.status(500).json({ message: "Internal Server Error" }));
 });
 
-// GET  /auth/verify  -  Used to verify JWT stored on the client
+// VERIFY GET
 router.get("/verify", isAuthenticated, (req, res, next) => {
-  // If JWT token is valid the payload gets decoded by the
-  // isAuthenticated middleware and made available on `req.payload`
   console.log(`req.payload`, req.payload);
 
-  // Send back the object with user data
-  // previously set as the token payload
   res.status(200).json(req.payload);
 });
 
