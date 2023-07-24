@@ -14,7 +14,6 @@ const userSchema = new Schema(
       trim: true,
     },
     password: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
     isAdmin: { type: Boolean, default: false },
   },
   { timestamps: true }
