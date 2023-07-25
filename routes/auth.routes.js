@@ -10,7 +10,7 @@ const saltRounds = 10;
 
 // SIGNUP POST
 router.post("/signup", (req, res, next) => {
-  const { email, password, firstName, lastName } = req.body;
+  const { email, password, firstName, lastName, isAdmin } = req.body;
 
   if ((email === "" || password === "" || firstName === "", lastName === "")) {
     res
@@ -49,6 +49,7 @@ router.post("/signup", (req, res, next) => {
         password: hashedPassword,
         firstName,
         lastName,
+        isAdmin,
       });
     })
     .then((createdUser) => {
