@@ -55,13 +55,15 @@ router.post("/signup", (req, res, next) => {
     .then((createdUser) => {
       const { email, firstName, lastName, _id } = createdUser;
 
-      const user = { email, firstName, lastName, _id };
+      const user = { email, firstName, lastName, _id, isAdmin };
 
       res.status(201).json({ user: user });
+      return;
     })
     .catch((err) => {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
+      return;
     });
 });
 
@@ -84,9 +86,9 @@ router.post("/login", (req, res, next) => {
       const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 
       if (passwordCorrect) {
-        const { _id, email, firstName, lastName } = foundUser;
+        const { _id, email, firstName, lastName, isAdmin } = foundUser;
 
-        const payload = { _id, email, firstName, lastName };
+        const payload = { _id, email, firstName, lastName, isAdmin };
 
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
           algorithm: "HS256",
