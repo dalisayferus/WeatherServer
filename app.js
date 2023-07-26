@@ -8,9 +8,10 @@ app.use(cors());
 require("./config")(app);
 
 // 👇 routes here
-const indexRoutes = require("./routes/index.routes");
-app.use("/api", indexRoutes);
+const alertsRouter = require("./routes/alerts.routes");
+app.use("/api", alertsRouter);
 
+// Auth routes
 const authRouter = require("./routes/auth.routes");
 app.use("/auth", authRouter);
 require("./error-handling")(app);

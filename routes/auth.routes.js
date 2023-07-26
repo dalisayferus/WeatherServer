@@ -100,7 +100,10 @@ router.post("/login", (req, res, next) => {
         res.status(401).json({ message: "Unable to authenticate the user" });
       }
     })
-    .catch((err) => res.status(500).json({ message: "Internal Server Error" }));
+    .catch((err) => {
+      res.status(500).json({ message: "Internal Server Error" });
+      console.log(err);
+    });
 });
 
 // VERIFY GET
