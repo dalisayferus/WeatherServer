@@ -7,11 +7,15 @@ const app = express();
 app.use(cors());
 require("./config")(app);
 
-// 👇 routes here
+// 👇 alert routes 
 const alertsRouter = require("./routes/alerts.routes");
 app.use("/api", alertsRouter);
 
-// Auth routes
+// 👇 weather routes
+const weatherRouter = require("./routes/weather.routes");
+app.use("/api", weatherRouter);
+
+// 👇 Auth routes
 const authRouter = require("./routes/auth.routes");
 app.use("/auth", authRouter);
 require("./error-handling")(app);
