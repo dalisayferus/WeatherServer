@@ -14,7 +14,6 @@ const userSchema = new Schema(
       trim: true,
     },
     password: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
     isAdmin: { type: Boolean, default: false },
   },
   { timestamps: true }
@@ -23,4 +22,4 @@ const userSchema = new Schema(
 // Create the models
 const User = mongoose.model("User", userSchema);
 
-module.exports = { User };
+module.exports = User;
